@@ -25,18 +25,18 @@ content .= toString!
 $content = $ "<div></div>"
 $content.html content
 $content.find "style" .remove!
-# $exportables = $content.find "[data-export]"
-# $exportables.each ->
-#     $ele = $ @
-#     exportable = $ele.attr \data-export
-#     index = getExportableIndex exportable
-#     color = getColor index
-#     $ele.attr \fill color
+$exportables = $content.find "[data-export]"
+$exportables.each ->
+    $ele = $ @
+    exportable = $ele.attr \data-export
+    index = getExportableIndex exportable
+    color = getColor index
+    $ele.attr \fill color
 
 str = $content.html!
 str .= replace "![CDATA[" "<![CDATA["
-width = 1858 * 16
-height = 995 * 16
+width = 1858 * 0.5
+height = 995 * 0.5
 
 opts =
     scaleWidth: width
@@ -45,7 +45,7 @@ opts =
 canvas = new Canvas width, height
 canvg canvas, str, opts
 buf = canvas.toBuffer!
-tileMaker = new TileMaker canvas, 256, 256, 7
+tileMaker = new TileMaker canvas, 256, 256, 2
     ..on \tile (z, x, y, buffer) ->
         <~ fs.mkdir "#__dirname/../data/tiles/#z"
         <~ fs.mkdir "#__dirname/../data/tiles/#z/#x"
