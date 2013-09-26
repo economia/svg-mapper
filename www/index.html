@@ -36,24 +36,16 @@
                 crs: L.CRS.Simple
             });
 
-            var cloudmade = L.tileLayer('../data/tiles/{z}/{x}/{y}.png', {
+            var cloudmade = L.tileLayer('../data/ods2010/{z}/{x}/{y}.png', {
 
             }).addTo(map);
-            var utfGrid = new L.UtfGrid('../data/tiles/{z}/{x}/{y}.json', {
+            var utfGrid = new L.UtfGrid('../data/ods2010/{z}/{x}/{y}.json', {
                 useJsonP: false
             });
             map.addLayer(utfGrid);
 
             utfGrid.on('mouseover', function (e) {
-                var str = "<b>" + e.data.name + "</b><br />"
-                var total = 0;
-                var vysledky = e.data.results;
-                for(var i in vysledky) {
-                    total += vysledky[i];
-                }
-                var rudi = vysledky[20];
-                str += "KSČM: " + Math.round(rudi / total * 100) + "% (" + rudi + " hlasů)"
-                tooltip.display(str);
+                tooltip.display(e.data);
             });
             utfGrid.on('mouseout', function (e) {
                 tooltip.hide();
