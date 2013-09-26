@@ -3,4 +3,249 @@
  Leaflet.utfgrid is an open-source JavaScript library that provides utfgrid interaction on leaflet powered maps.
  https://github.com/danzel/Leaflet.utfgrid
 */
-(function(window,undefined){L.Util.ajax=function(url,cb){window.XMLHttpRequest===undefined&&(window.XMLHttpRequest=function(){try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){throw Error("XMLHttpRequest is not supported")}});var response,request=new XMLHttpRequest;request.open("GET",url),request.onreadystatechange=function(){request.readyState===4&&request.status===200&&(window.JSON?response=JSON.parse(request.responseText):response=eval("("+request.responseText+")"),cb(response))},request.send()},L.UtfGrid=L.Class.extend({includes:L.Mixin.Events,options:{subdomains:"abc",minZoom:0,maxZoom:18,tileSize:256,resolution:4,useJsonP:!0,pointerCursor:!0},_mouseOn:null,initialize:function(e,t){L.Util.setOptions(this,t),this._url=e,this._cache={};var n=0;while(window["lu"+n])n++;this._windowKey="lu"+n,window[this._windowKey]={};var r=this.options.subdomains;typeof this.options.subdomains=="string"&&(this.options.subdomains=r.split(""))},onAdd:function(e){this._map=e,this._container=this._map._container,this._update();var t=this._map.getZoom();if(t>this.options.maxZoom||t<this.options.minZoom)return;e.on("click",this._click,this),e.on("mousemove",this._move,this),e.on("moveend",this._update,this)},onRemove:function(){var e=this._map;e.off("click",this._click,this),e.off("mousemove",this._move,this),e.off("moveend",this._update,this)},_click:function(e){this.fire("click",this._objectForEvent(e))},_move:function(e){var t=this._objectForEvent(e);t.data!==this._mouseOn?(this._mouseOn&&(this.fire("mouseout",{latlng:e.latlng,data:this._mouseOn}),this.options.pointerCursor&&(this._container.style.cursor="")),t.data&&(this.fire("mouseover",t),this.options.pointerCursor&&(this._container.style.cursor="pointer")),this._mouseOn=t.data):t.data&&this.fire("mousemove",t)},_objectForEvent:function(e){var t=this._map,n=t.project(e.latlng),r=this.options.tileSize,i=this.options.resolution,s=Math.floor(n.x/r),o=Math.floor(n.y/r),u=Math.floor((n.x-s*r)/i),a=Math.floor((n.y-o*r)/i),f=t.options.crs.scale(t.getZoom())/r;s=(s+f)%f,o=(o+f)%f;var l=this._cache[t.getZoom()+"_"+s+"_"+o];if(!l)return{latlng:e.latlng,data:null};var c=this._utfDecode(l.grid[a].charCodeAt(u)),h=l.keys[c],p=l.data[h];return l.data.hasOwnProperty(h)||(p=null),{latlng:e.latlng,data:p}},_update:function(){var e=this._map.getPixelBounds(),t=this._map.getZoom(),n=this.options.tileSize;if(t>this.options.maxZoom||t<this.options.minZoom)return;var r=new L.Point(Math.floor(e.min.x/n),Math.floor(e.min.y/n)),i=new L.Point(Math.floor(e.max.x/n),Math.floor(e.max.y/n)),s=this._map.options.crs.scale(t)/n;for(var o=r.x;o<=i.x;o++)for(var u=r.y;u<=i.y;u++){var a=(o+s)%s,f=(u+s)%s,l=t+"_"+a+"_"+f;this._cache.hasOwnProperty(l)||(this._cache[l]=null,this.options.useJsonP?this._loadTileP(t,a,f):this._loadTile(t,a,f))}},_loadTileP:function(e,t,n){var r=document.getElementsByTagName("head")[0],i=e+"_"+t+"_"+n,s="lu_"+i,o=this._windowKey,u=this,a=L.Util.template(this._url,L.Util.extend({s:L.TileLayer.prototype._getSubdomain.call(this,{x:t,y:n}),z:e,x:t,y:n,cb:o+"."+s},this.options)),f=document.createElement("script");f.setAttribute("type","text/javascript"),f.setAttribute("src",a),window[o][s]=function(e){u._cache[i]=e,delete window[o][s],r.removeChild(f)},r.appendChild(f)},_loadTile:function(e,t,n){var r=L.Util.template(this._url,L.Util.extend({s:L.TileLayer.prototype._getSubdomain.call(this,{x:t,y:n}),z:e,x:t,y:n},this.options)),i=e+"_"+t+"_"+n,s=this;L.Util.ajax(r,function(e){s._cache[i]=e})},_utfDecode:function(e){return e>=93&&e--,e>=35&&e--,e-32}})})(this);
+(function (window, undefined) {
+
+L.Util.ajax = function (url, cb) {
+    // the following is from JavaScript: The Definitive Guide
+    // and https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest/Using_XMLHttpRequest_in_IE6
+    if (window.XMLHttpRequest === undefined) {
+        window.XMLHttpRequest = function () {
+            /*global ActiveXObject:true */
+            try {
+                return new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            catch  (e) {
+                throw new Error("XMLHttpRequest is not supported");
+            }
+        };
+    }
+    var response, request = new XMLHttpRequest();
+    request.open("GET", url);
+    request.onreadystatechange = function () {
+        /*jshint evil: true */
+        if (request.readyState === 4 && request.status === 200) {
+            if (window.JSON) {
+                response = JSON.parse(request.responseText);
+            } else {
+                response = eval("(" + request.responseText + ")");
+            }
+            cb(response);
+        }
+    };
+    request.send();
+};
+L.UtfGrid = L.Class.extend({
+    includes: L.Mixin.Events,
+    options: {
+        subdomains: 'abc',
+
+        minZoom: 0,
+        maxZoom: 18,
+        tileSize: 256,
+
+        resolution: 4,
+
+        useJsonP: true,
+        pointerCursor: true
+    },
+
+    //The thing the mouse is currently on
+    _mouseOn: null,
+
+    initialize: function (url, options) {
+        L.Util.setOptions(this, options);
+
+        this._url = url;
+        this._cache = {};
+
+        //Find a unique id in window we can use for our callbacks
+        //Required for jsonP
+        var i = 0;
+        while (window['lu' + i]) {
+            i++;
+        }
+        this._windowKey = 'lu' + i;
+        window[this._windowKey] = {};
+
+        var subdomains = this.options.subdomains;
+        if (typeof this.options.subdomains === 'string') {
+            this.options.subdomains = subdomains.split('');
+        }
+    },
+
+    onAdd: function (map) {
+        this._map = map;
+        this._container = this._map._container;
+
+        this._update();
+
+        var zoom = this._map.getZoom();
+
+        if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
+            return;
+        }
+
+        map.on('click', this._click, this);
+        map.on('mousemove', this._move, this);
+        map.on('moveend', this._update, this);
+    },
+
+    onRemove: function () {
+        var map = this._map;
+        map.off('click', this._click, this);
+        map.off('mousemove', this._move, this);
+        map.off('moveend', this._update, this);
+    },
+
+    _click: function (e) {
+        this.fire('click', this._objectForEvent(e));
+    },
+    _move: function (e) {
+        var on = this._objectForEvent(e);
+
+        if (on.data !== this._mouseOn) {
+            if (this._mouseOn) {
+                this.fire('mouseout', { latlng: e.latlng, data: this._mouseOn });
+                if (this.options.pointerCursor) {
+                    this._container.style.cursor = '';
+                }
+            }
+            if (on.data) {
+                this.fire('mouseover', on);
+                if (this.options.pointerCursor) {
+                    this._container.style.cursor = 'pointer';
+                }
+            }
+
+            this._mouseOn = on.data;
+        } else if (on.data) {
+            this.fire('mousemove', on);
+        }
+    },
+
+    _objectForEvent: function (e) {
+        var map = this._map,
+            point = map.project(e.latlng),
+            tileSize = this.options.tileSize,
+            resolution = this.options.resolution,
+            x = Math.floor(point.x / tileSize),
+            y = Math.floor(point.y / tileSize),
+            gridX = Math.floor((point.x - (x * tileSize)) / resolution),
+            gridY = Math.floor((point.y - (y * tileSize)) / resolution),
+            max = map.options.crs.scale(map.getZoom()) / tileSize;
+
+        x = (x + max) % max;
+        y = (y + max) % max;
+
+        var data = this._cache[map.getZoom() + '_' + x + '_' + y];
+        if (!data) {
+            return { latlng: e.latlng, data: null };
+        }
+
+        var idx = this._utfDecode(data.grid[gridY].charCodeAt(gridX)),
+            key = data.keys[idx],
+            result = data.data[key];
+
+        if (!data.data.hasOwnProperty(key)) {
+            result = null;
+        }
+
+        return { latlng: e.latlng, data: result};
+    },
+
+    //Load up all required json grid files
+    //TODO: Load from center etc
+    _update: function () {
+        var bounds = this._map.getPixelBounds(),
+            zoom = this._map.getZoom(),
+            tileSize = this.options.tileSize;
+
+        if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
+            return;
+        }
+
+        var nwTilePoint = new L.Point(
+                Math.floor(bounds.min.x / tileSize),
+                Math.floor(bounds.min.y / tileSize)),
+            seTilePoint = new L.Point(
+                Math.floor(bounds.max.x / tileSize),
+                Math.floor(bounds.max.y / tileSize)),
+            max = this._map.options.crs.scale(zoom);
+        //Load all required ones
+
+        for (var x = nwTilePoint.x; x <= seTilePoint.x; x++) {
+            for (var y = nwTilePoint.y; y <= seTilePoint.y; y++) {
+                var xw = (x + max) % max, yw = (y + max) % max;
+                var key = zoom + '_' + xw + '_' + yw;
+
+                if (!this._cache.hasOwnProperty(key)) {
+                    this._cache[key] = null;
+
+                    if (this.options.useJsonP) {
+                        this._loadTileP(zoom, xw, yw);
+                    } else {
+                        this._loadTile(zoom, xw, yw);
+                    }
+                }
+            }
+        }
+    },
+
+    _loadTileP: function (zoom, x, y) {
+        var head = document.getElementsByTagName('head')[0],
+            key = zoom + '_' + x + '_' + y,
+            functionName = 'lu_' + key,
+            wk = this._windowKey,
+            self = this;
+
+        var url = L.Util.template(this._url, L.Util.extend({
+            s: L.TileLayer.prototype._getSubdomain.call(this, { x: x, y: y }),
+            z: zoom,
+            x: x,
+            y: y,
+            cb: wk + '.' + functionName
+        }, this.options));
+
+        var script = document.createElement('script');
+        script.setAttribute("type", "text/javascript");
+        script.setAttribute("src", url);
+
+        window[wk][functionName] = function (data) {
+            self._cache[key] = data;
+            delete window[wk][functionName];
+            head.removeChild(script);
+        };
+
+        head.appendChild(script);
+    },
+
+    _loadTile: function (zoom, x, y) {
+        var url = L.Util.template(this._url, L.Util.extend({
+            s: L.TileLayer.prototype._getSubdomain.call(this, { x: x, y: y }),
+            z: zoom,
+            x: x,
+            y: y
+        }, this.options));
+
+        var key = zoom + '_' + x + '_' + y;
+        var self = this;
+        L.Util.ajax(url, function (data) {
+            self._cache[key] = data;
+        });
+    },
+
+    _utfDecode: function (c) {
+        if (c >= 93) {
+            c--;
+        }
+        if (c >= 35) {
+            c--;
+        }
+        return c - 32;
+    }
+});
+
+
+
+
+}(this));

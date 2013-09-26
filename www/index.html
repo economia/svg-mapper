@@ -5,8 +5,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
         <title></title>
         <link rel="stylesheet" type="text/css" href="http://service.ihned.cz/js/tooltip/v1.1.2.css" />
-        <link rel="stylesheet" href="http://service.ihned.cz/js/mapbox/mapbox.css" />
-        <script src='http://service.ihned.cz/js/mapbox/mapbox.js'></script>
+        <link rel="stylesheet" href="http://datasklad.ihned.cz/dpp/mapbox/mapbox.css" />
+        <script src='./leaflet.js'></script>
         <script src='./leaflet.utfgrid.js'></script>
         <script src="http://service.ihned.cz/js/jquery.min.js"></script>
         <script src="http://service.ihned.cz/js/tooltip/v1.1.2.min.js"></script>
@@ -45,8 +45,10 @@
             map.addLayer(utfGrid);
 
             utfGrid.on('mouseover', function (e) {
-                console.log(e.data);
                 tooltip.display(e.data.name);
+            });
+            utfGrid.on('mouseout', function (e) {
+                tooltip.hide();
             });
 
         </script>

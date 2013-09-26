@@ -21,6 +21,8 @@ module.exports = class TileJsonGenerator
     generateJson: (canvas) ->
         ctx = canvas.getContext \2d
         keys = [ 0 ]
+        keys = new Array 100
+        keys .= map -> 0
         data = { "0": null}
         grid = for y in [0 til canvas.height by @jsonGranularity]
             cols = for x in [0 til canvas.width by @jsonGranularity]
@@ -30,6 +32,8 @@ module.exports = class TileJsonGenerator
                     len = keys.push id
                     data[id] = JSON.parse @exportables[id]
                     index = len - 1
+                    if id == "2532"
+                        console.log @exportables[id]
                 chr = @idToChar index
                 chr
             cols.join ''
@@ -67,8 +71,8 @@ module.exports = class TileJsonGenerator
             null
 
     idToChar: (id) ->
-        charcode = 32 + id
-        if id >= 34 then charcode += 1
-        if id >= 92 then charcode += 1
-        String.fromCharCode charcode
+        id += 32
+        if id >= 34 then id += 1
+        if id >= 92 then id += 1
+        String.fromCharCode id
 
