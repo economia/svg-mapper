@@ -3,6 +3,7 @@ require! {
     Canvas:canvas
     fs
     $ : jquery
+    './TileMaker'
 }
 exportables = []
 getExportableIndex = (str) ->
@@ -24,18 +25,18 @@ content .= toString!
 $content = $ "<div></div>"
 $content.html content
 $content.find "style" .remove!
-$exportables = $content.find "[data-export]"
-$exportables.each ->
-    $ele = $ @
-    exportable = $ele.attr \data-export
-    index = getExportableIndex exportable
-    color = getColor index
-    $ele.attr \fill color
+# $exportables = $content.find "[data-export]"
+# $exportables.each ->
+#     $ele = $ @
+#     exportable = $ele.attr \data-export
+#     index = getExportableIndex exportable
+#     color = getColor index
+#     $ele.attr \fill color
 
 str = $content.html!
 str .= replace "![CDATA[" "<![CDATA["
-width = 1858 * 2
-height = 995 * 2
+width = 1858 * 16
+height = 995 * 16
 
 opts =
     scaleWidth: width
@@ -44,6 +45,13 @@ opts =
 canvas = new Canvas width, height
 canvg canvas, str, opts
 buf = canvas.toBuffer!
-<~ fs.writeFile "#__dirname/../test.png", buf
+tileMaker = new TileMaker canvas, 256, 256, 7
+    ..on \tile (z, x, y, buffer) ->
+        <~ fs.mkdir "#__dirname/../data/tiles/#z"
+        <~ fs.mkdir "#__dirname/../data/tiles/#z/#x"
+        fs.writeFile "#__dirname/../data/tiles/#z/#x/#y.png", buffer
+
+    ..makeTiles!
+# <~ fs.writeFile "#__dirname/../test.png", buf
 console.log 'done'
-process.exit!
+setTimeout process.exit, 8000
