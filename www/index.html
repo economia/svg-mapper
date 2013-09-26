@@ -30,7 +30,7 @@
             var center = Math.round(tileCount / 2)
             var map = L.map('map', {
                 minZoom: 1,
-                maxZoom: 6,
+                maxZoom: 5,
                 zoom: zoomLevel,
                 center: [-70,-160],
                 crs: L.CRS.Simple
@@ -45,7 +45,15 @@
             map.addLayer(utfGrid);
 
             utfGrid.on('mouseover', function (e) {
-                tooltip.display(e.data.name);
+                var str = "<b>" + e.data.name + "</b><br />"
+                var total = 0;
+                var vysledky = e.data.results;
+                for(var i in vysledky) {
+                    total += vysledky[i];
+                }
+                var rudi = vysledky[20];
+                str += "KSČM: " + Math.round(rudi / total * 100) + "% (" + rudi + " hlasů)"
+                tooltip.display(str);
             });
             utfGrid.on('mouseout', function (e) {
                 tooltip.hide();
