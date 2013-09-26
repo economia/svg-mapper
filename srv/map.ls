@@ -46,7 +46,8 @@ canvas = new Canvas width, height
 canvg canvas, str, opts
 buf = canvas.toBuffer!
 tileMaker = new TileMaker canvas, 256, 256, 2
-    ..on \tile (z, x, y, buffer) ->
+    ..on \tile (z, x, y, canvas) ->
+        buffer = canvas.toBuffer!
         <~ fs.mkdir "#__dirname/../data/tiles/#z"
         <~ fs.mkdir "#__dirname/../data/tiles/#z/#x"
         fs.writeFile "#__dirname/../data/tiles/#z/#x/#y.png", buffer

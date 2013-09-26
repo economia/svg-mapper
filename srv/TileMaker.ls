@@ -24,7 +24,7 @@ module.exports = class TileMaker extends EventEmitter
                     @tileWidth
                     @tileHeight
                 tileCtx.putImageData imageData, 0, 0
-                @emit \tile z, x, y, tile.toBuffer!
+                @emit \tile z, x, y, tile
 
 log2 = (val) ->
     Math.log val / Math.LN2
