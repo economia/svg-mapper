@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+        <title></title>
+        <link rel="stylesheet" href="http://service.ihned.cz/js/mapbox/mapbox.css" />
+        <script src='http://service.ihned.cz/js/mapbox/mapbox.js'></script>
+        <style>
+            #map {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                bottom: 0px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script>
+            var zoomLevel = 2;
+            var tileCount = Math.pow(2, zoomLevel);
+            var center = Math.round(tileCount / 2)
+            var map = L.map('map', {
+                minZoom: 1,
+                maxZoom: 6,
+                zoom: zoomLevel,
+                center: [-70,-160],
+                crs: L.CRS.Simple
+            });
+
+            var cloudmade = L.tileLayer('../data/tiles/{z}/{x}/{y}.png', {
+
+            }).addTo(map);
+        </script>
+    </body>
+</html>
