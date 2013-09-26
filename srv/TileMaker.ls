@@ -26,5 +26,7 @@ module.exports = class TileMaker extends EventEmitter
                 tileCtx.putImageData imageData, 0, 0
                 @emit \tile z, x, y, tile
 
+        return tileCount
+
 log2 = (val) ->
     Math.log val / Math.LN2
