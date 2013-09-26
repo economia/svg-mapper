@@ -4,21 +4,10 @@ require! {
     fs
     $ : jquery
     './TileMaker'
+    './TileJsonGenerator'
 }
-exportables = []
-getExportableIndex = (str) ->
-    index = exportables.indexOf str
-    if index != -1
-        return index
-    length = exportables.push str
-    return length - 1
 
-getColor = (index) ->
-    index *= 5
-    color = index.toString 16
-    while color.length < 6
-        color = "0" + color
-    "#" + color
+tileJsonGenerator = new TileJsonGenerator
 
 (err, content) <~ fs.readFile "#__dirname/../data/map.svg"
 content .= toString!
@@ -29,10 +18,10 @@ $exportables = $content.find "[data-export]"
 $exportables.each ->
     $ele = $ @
     exportable = $ele.attr \data-export
-    index = getExportableIndex exportable
-    color = getColor index
+    index = tileJsonGenerator.getExportableIndex exportable
+    color = tileJsonGenerator.getColorByIndex index
     $ele.attr \fill color
-
+console.log \bar tileJsonGenerator.getColorByIndex 2532
 str = $content.html!
 str .= replace "![CDATA[" "<![CDATA["
 width = 1858 * 0.5
@@ -47,12 +36,14 @@ canvg canvas, str, opts
 buf = canvas.toBuffer!
 tileMaker = new TileMaker canvas, 256, 256, 2
     ..on \tile (z, x, y, canvas) ->
+        tjson = tileJsonGenerator.generateJson canvas
         buffer = canvas.toBuffer!
         <~ fs.mkdir "#__dirname/../data/tiles/#z"
         <~ fs.mkdir "#__dirname/../data/tiles/#z/#x"
         fs.writeFile "#__dirname/../data/tiles/#z/#x/#y.png", buffer
+        fs.writeFile "#__dirname/../data/tiles/#z/#x/#y.json", JSON.stringify tjson, null, "  "
 
     ..makeTiles!
-# <~ fs.writeFile "#__dirname/../test.png", buf
+<~ fs.writeFile "#__dirname/../test.png", buf
 console.log 'done'
 setTimeout process.exit, 8000

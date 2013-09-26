@@ -4,8 +4,12 @@
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
         <title></title>
+        <link rel="stylesheet" type="text/css" href="http://service.ihned.cz/js/tooltip/v1.1.2.css" />
         <link rel="stylesheet" href="http://service.ihned.cz/js/mapbox/mapbox.css" />
         <script src='http://service.ihned.cz/js/mapbox/mapbox.js'></script>
+        <script src='./leaflet.utfgrid.js'></script>
+        <script src="http://service.ihned.cz/js/jquery.min.js"></script>
+        <script src="http://service.ihned.cz/js/tooltip/v1.1.2.min.js"></script>
         <style>
             #map {
                 position: absolute;
@@ -20,6 +24,7 @@
         <div id="map">
         </div>
         <script>
+            var tooltip = new Tooltip();
             var zoomLevel = 2;
             var tileCount = Math.pow(2, zoomLevel);
             var center = Math.round(tileCount / 2)
@@ -34,6 +39,16 @@
             var cloudmade = L.tileLayer('../data/tiles/{z}/{x}/{y}.png', {
 
             }).addTo(map);
+            var utfGrid = new L.UtfGrid('../data/tiles/{z}/{x}/{y}.json', {
+                useJsonP: false
+            });
+            map.addLayer(utfGrid);
+
+            utfGrid.on('mouseover', function (e) {
+                console.log(e.data);
+                tooltip.display(e.data.name);
+            });
+
         </script>
     </body>
 </html>
