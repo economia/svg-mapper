@@ -32,8 +32,6 @@ module.exports = class TileJsonGenerator
                     len = keys.push id
                     data[id] = JSON.parse @exportables[id]
                     index = len - 1
-                    if id == "2532"
-                        console.log @exportables[id]
                 chr = @idToChar index
                 chr
             cols.join ''
