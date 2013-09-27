@@ -20,7 +20,7 @@ module.exports = class TileJsonGenerator
 
     generateJson: (canvas) ->
         ctx = canvas.getContext \2d
-        keys = [ 0 ]
+        keys = [ "0" ]
         data = { "0": null}
         grid = for y in [0 til canvas.height by @jsonGranularity]
             cols = for x in [0 til canvas.width by @jsonGranularity]
