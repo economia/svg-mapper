@@ -29,23 +29,23 @@
             var tileCount = Math.pow(2, zoomLevel);
             var center = Math.round(tileCount / 2)
             var map = L.map('map', {
-                minZoom: 1,
+                minZoom: 2,
                 maxZoom: 5,
                 zoom: zoomLevel,
                 center: [-70,-160],
                 crs: L.CRS.Simple
             });
-
-            var cloudmade = L.tileLayer('../data/ods2010/{z}/{x}/{y}.png', {
+            var cloudmade = L.tileLayer('../data/kscm-2002/{z}/{x}/{y}.png', {
 
             }).addTo(map);
-            var utfGrid = new L.UtfGrid('../data/ods2010/{z}/{x}/{y}.json', {
+            var utfGrid = new L.UtfGrid('../data/kscm-2002/{z}/{x}/{y}.json', {
                 useJsonP: false
             });
             map.addLayer(utfGrid);
 
             utfGrid.on('mouseover', function (e) {
-                tooltip.display(e.data);
+                var str = "<b>" + e.data.name + "</b><br />Volební výsledek " + e.data.abbr + " v roce " + e.data.year + ": " + (e.data.percent * 100).toFixed(2) + "%  (" + e.data.count + " hlasů)<br />"
+                tooltip.display(str);
             });
             utfGrid.on('mouseout', function (e) {
                 tooltip.hide();
