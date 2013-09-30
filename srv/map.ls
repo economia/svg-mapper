@@ -11,7 +11,7 @@ fixCdata = (str) ->
     str.replace "![CDATA[" "<![CDATA["
 
 tileJsonGenerator = new TileJsonGenerator
-filename = "kscm2010"
+filename = "kscm-2010"
 (err, content) <~ fs.readFile "#__dirname/../data/#filename.svg"
 fs.mkdir "#__dirname/../data/#filename"
 console.log "Starting #filename"
@@ -65,7 +65,7 @@ contouredExportsImage = fixCdata $content.html!
         tileMaker = new TileMaker canvas, 256, 256, zoomLevel
             ..on \tile (z, x, y, canvas) ->
                 tjson = tileJsonGenerator.generateJson canvas
-                <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", JSON.stringify tjson, null, "  "
+                <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", JSON.stringify tjson#, null, "  "
                 tilesDone++
                 cb! if tilesDone == tileCount
 
