@@ -3,7 +3,7 @@ require! {
     events.EventEmitter
 }
 module.exports = class TileMaker extends EventEmitter
-    (@sourceCanvas, @tileWidth, @tileHeight, @zoomLevel = null) ->
+    (@sourceCanvas, [@tileWidth, @tileHeight], @zoomLevel = null) ->
 
     makeTiles: ->
         sourceContext = @sourceCanvas.getContext \2d

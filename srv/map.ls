@@ -67,7 +67,7 @@ contouredExportsImage = fixCdata $content.html!
         buffer = canvas.toBuffer!
         <~ fs.writeFile "#__dirname/../data/#filename/test.png" buffer
         tilesDone = 0
-        tileMaker = new TileMaker canvas, 256, 256, zoomLevel
+        tileMaker = new TileMaker canvas, [256, 256], zoomLevel
             ..on \tile (z, x, y, canvas) ->
                 buffer = canvas.toBuffer!
                 <~ fs.mkdir "#__dirname/../data/#filename/#z"
@@ -84,7 +84,7 @@ contouredExportsImage = fixCdata $content.html!
         canvas = new Canvas width, height
         canvg canvas, svg, opts
         tilesDone = 0
-        tileMaker = new TileMaker canvas, 256, 256, zoomLevel
+        tileMaker = new TileMaker canvas, [256, 256], zoomLevel
             ..on \tile (z, x, y, canvas) ->
                 tjson = tileJsonGenerator.generateJson canvas
                 <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", JSON.stringify tjson#, null, "  "
