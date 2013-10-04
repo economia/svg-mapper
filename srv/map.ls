@@ -37,7 +37,7 @@ $exportables.each ->
     $ele.attr \fill color
 
 contouredExportsImage = fixCdata $content.html!
-<~ async.eachSeries [6], (zoomLevel, cb) ->
+<~ async.eachSeries [6 to 9], (zoomLevel, cb) ->
     west = 12.09066916
     east = 18.859236427
     north = 51.055778242
@@ -54,6 +54,9 @@ contouredExportsImage = fixCdata $content.html!
     width   = Math.abs x0 - x1
     height  = Math.abs y0 - y1
 
+    tileCountOffsetX = Math.floor x0 / 256
+    tileCountOffsetY = Math.floor y0 / 256
+
     opts =
         offsetX: offsetX
         offsetY: offsetY
@@ -64,11 +67,11 @@ contouredExportsImage = fixCdata $content.html!
     createImages = (svg, cb) ->
         canvas = new Canvas width + offsetX, height + offsetY
         canvg canvas, svg, opts
-        buffer = canvas.toBuffer!
-        <~ fs.writeFile "#__dirname/../data/#filename/test.png" buffer
         tilesDone = 0
         tileMaker = new TileMaker canvas, [256, 256], zoomLevel
             ..on \tile (z, x, y, canvas) ->
+                x += tileCountOffsetX
+                y += tileCountOffsetY
                 buffer = canvas.toBuffer!
                 <~ fs.mkdir "#__dirname/../data/#filename/#z"
                 <~ fs.mkdir "#__dirname/../data/#filename/#z/#x"
@@ -86,6 +89,8 @@ contouredExportsImage = fixCdata $content.html!
         tilesDone = 0
         tileMaker = new TileMaker canvas, [256, 256], zoomLevel
             ..on \tile (z, x, y, canvas) ->
+                x += tileCountOffsetX
+                y += tileCountOffsetY
                 tjson = tileJsonGenerator.generateJson canvas
                 <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", JSON.stringify tjson#, null, "  "
                 tilesDone++
