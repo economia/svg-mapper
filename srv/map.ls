@@ -95,8 +95,8 @@ contouredExportsImage = fixCdata $content.html!
 
     console.log "Drawing tiles"
     <~ createImages originalImage
-    # console.log "Computing JSONs"
-    # <~ createJsons contouredExportsImage
+    console.log "Computing JSONs"
+    <~ createJsons contouredExportsImage
     console.log "Done #zoomLevel"
     cb!
 
