@@ -84,7 +84,7 @@ contouredExportsImage = fixCdata $content.html!
         #<~ fs.writeFile "#__dirname/../test.png", canvas.toBuffer!
 
     createJsons = (svg, cb) ->
-        canvas = new Canvas width, height
+        canvas = new Canvas width + offsetX, height + offsetY
         canvg canvas, svg, opts
         tilesDone = 0
         tileMaker = new TileMaker canvas, [256, 256], zoomLevel
