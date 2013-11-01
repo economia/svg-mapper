@@ -20,11 +20,11 @@ files.forEach (file, cb) ->
                 console.error stderr if stderr
                 console.log "Done #file #zoomLevel"
                 cb!
-tasks ++= files.map (file) ->
-    (cb) ->
-        console.log "Moving #file.svg"
-        <~ fs.rename "#__dirname/../data/#file.svg", "#__dirname/../data/done/#file.svg"
-        console.error err if err
-        cb!
 <~ async.parallelLimit tasks, numCores
+
+<~ async.each files, (file, cb) ->
+    console.log "Moving #file.svg"
+    <~ fs.rename "#__dirname/../data/#file.svg", "#__dirname/../data/done/#file.svg"
+    console.error err if err
+    cb!
 console.log "Done!"
