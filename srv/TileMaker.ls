@@ -13,7 +13,6 @@ module.exports = class TileMaker extends EventEmitter
         rows = Math.ceil @sourceCanvas.height / @tileHeight
         tileCount = Math.max cols, rows
         z = @zoomLevel || Math.ceil log2 tileCount
-        console.log "Generating zoomlevel #z"
         for x in [0 til cols]
             for y in [0 til rows]
                 offX = x * @tileWidth
