@@ -1,4 +1,5 @@
 require! {
+    zlib
     async
     canvg
     Canvas:canvas
@@ -99,7 +100,10 @@ createJsons = (svg, cb) ->
             x += tileCountOffsetX
             y += tileCountOffsetY
             tjson = tileJsonGenerator.generateJson canvas
-            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", JSON.stringify tjson#, null, "  "
+            data = JSON.stringify tjson
+            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", data
+            (err, compressed) <~ zlib.gzip data
+            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json.gz", compressed
             tilesDone++
             cb! if tilesDone == tileCount
 
