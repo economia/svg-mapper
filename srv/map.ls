@@ -57,7 +57,10 @@ offsetX = x0 % 256
 offsetY = y0 % 256
 width   = Math.abs x0 - x1
 height  = Math.abs y0 - y1
-
+# targetWidth = 1500
+# scale = targetWidth / width
+# width *= scale
+# height *= scale
 tileCountOffsetX = Math.floor x0 / 256
 tileCountOffsetY = Math.floor y0 / 256
 
@@ -71,6 +74,8 @@ opts =
 createImages = (svg, cb) ->
     canvas = new Canvas width + offsetX, height + offsetY
     canvg canvas, svg, opts
+    # <~ fs.writeFile "#__dirname/../test.png", canvas.toBuffer!
+    # return cb!
     tilesDone = 0
     tileMaker = new TileMaker canvas, [256, 256], zoomLevel
         ..on \tile (z, x, y, canvas) ->
@@ -89,7 +94,6 @@ createImages = (svg, cb) ->
 
     tileCount = tileMaker.makeTiles!
 
-    #<~ fs.writeFile "#__dirname/../test.png", canvas.toBuffer!
 
 createJsons = (svg, cb) ->
     canvas = new Canvas width + offsetX, height + offsetY
