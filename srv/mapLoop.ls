@@ -2,23 +2,29 @@ require! {
     fs
     child_process.exec
     async
+    optimist.argv
 }
+numCores = (parseInt argv.c, 10) || 8
 (err, files) <~ fs.readdir "#__dirname/../data/"
 files .= filter -> /svg$/.test it
 files .= map -> it.replace ".svg" ""
 
-console.log "Go!"
-<~ async.eachLimit files, 2, (file, cb) ->
-    console.log "Starting #file"
-    <~ async.eachLimit [10 to 6], 4, (zoomLevel, cb) ->
-        console.log "Starting #file #zoomLevel"
-        (err, stdout, stderr) <~ exec "lsc #__dirname/map.ls -f #file -z #zoomLevel"
-        console.log err if err
-        console.log stderr if stderr
-        console.log "Done #file - #zoomLevel"
+tasks = []
+files.forEach (file, cb) ->
+    [6 to 10].forEach (zoomLevel, cb) ->
+        tasks.push do
+            (cb) ->
+                console.log "Starting #file #zoomLevel"
+                (err, stdout, stderr) <~ exec "lsc #__dirname/map.ls -f #file -z #zoomLevel"
+                console.error err if err
+                console.error stderr if stderr
+                console.log "Done #file #zoomLevel"
+                cb!
+tasks ++= files.map (file) ->
+    (cb) ->
+        console.log "Moving #file.svg"
+        <~ fs.rename "#__dirname/../data/#file.svg", "#__dirname/../data/done/#file.svg"
+        console.error err if err
         cb!
-    console.log "Done #file - all"
-    <~ fs.rename "#__dirname/../data/#file.svg", "#__dirname/../data/done/#file.svg"
-    cb!
-
+<~ async.parallelLimit tasks, numCores
 console.log "Done!"
