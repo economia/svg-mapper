@@ -49,10 +49,13 @@ $exportables.each ->
 
 contouredExportsImage = fixCdata $content.html!
 console.log "#zoomLevel: start"
-west = 12.09066916
-east = 18.859236427
-north = 51.055778242
-south = 48.55214327757924
+bounds = $content.find "svg" .attr \data-bounds
+if not bounds
+    console.error "No data-bounds attribute found in SVG file (should be north,west,south,east)"
+    process.exit!
+
+[north, west, south, east] = bounds.split /[, ;]/g .map -> parseFloat it
+
 {x:x0, y:y0} = L.CRS.EPSG3857.latLngToPoint do
     new L.LatLng north, west
     zoomLevel
