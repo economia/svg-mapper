@@ -22,8 +22,9 @@ existingDirs = {}
 filename = argv.f
 zoomLevel = argv.z
 tileJsonGenerator = new TileJsonGenerator
-(err, content) <~ fs.readFile "#__dirname/../data/#filename.svg"
-(err) <~ fs.mkdir "#__dirname/../data/#filename"
+dirname = filename.replace /\.svg$/i ""
+(err, content) <~ fs.readFile "#filename"
+(err) <~ fs.mkdir "#dirname"
 console.log "Starting #filename"
 content .= toString!
 $content = $ "<div></div>"
@@ -74,7 +75,7 @@ opts =
 createImages = (svg, cb) ->
     canvas = new Canvas width + offsetX, height + offsetY
     canvg canvas, svg, opts
-    # <~ fs.writeFile "#__dirname/../test.png", canvas.toBuffer!
+    # <~ fs.writeFile "#{filename}.png", canvas.toBuffer!
     # return cb!
     tilesDone = 0
     tileMaker = new TileMaker canvas, [256, 256], zoomLevel
@@ -82,13 +83,13 @@ createImages = (svg, cb) ->
             x += tileCountOffsetX
             y += tileCountOffsetY
             buffer = canvas.toBuffer!
-            if not existingDirs["#filename/#z"]
-                fs.mkdirSync "#__dirname/../data/#filename/#z"
-                existingDirs["#filename/#z"] := true
-            if not existingDirs["#filename/#z/#x"]
-                fs.mkdirSync "#__dirname/../data/#filename/#z/#x"
-                existingDirs["#filename/#z/#x"] := true
-            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.png", buffer
+            if not existingDirs["#dirname/#z"]
+                fs.mkdirSync "#dirname/#z"
+                existingDirs["#dirname/#z"] := true
+            if not existingDirs["#dirname/#z/#x"]
+                fs.mkdirSync "#dirname/#z/#x"
+                existingDirs["#dirname/#z/#x"] := true
+            <~ fs.writeFile "#dirname/#z/#x/#y.png", buffer
             tilesDone++
             cb! if tilesDone == tileCount
 
@@ -105,9 +106,9 @@ createJsons = (svg, cb) ->
             y += tileCountOffsetY
             tjson = tileJsonGenerator.generateJson canvas
             data = JSON.stringify tjson
-            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json", data
+            <~ fs.writeFile "#dirname/#z/#x/#y.json", data
             (err, compressed) <~ zlib.gzip data
-            <~ fs.writeFile "#__dirname/../data/#filename/#z/#x/#y.json.gz", compressed
+            <~ fs.writeFile "#dirname/#z/#x/#y.json.gz", compressed
             tilesDone++
             cb! if tilesDone == tileCount
 
