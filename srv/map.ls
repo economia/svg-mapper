@@ -5,11 +5,17 @@ require! {
     Canvas:canvas
     fs
     jsdom.jsdom
-    optimist.argv
+    optimist
     $ : jquery
     './TileMaker'
     './TileJsonGenerator'
 }
+optimist
+    .usage "Usage: $0 -f [filename] -z [num]"
+    .demand ["f" "z"]
+    .describe "f" "SVG file to use"
+    .describe "z" "Zoom level to generate"
+argv = optimist.argv
 global.document = jsdom "<html><head></head><body>hello world</body></html>"
 global.window = global.document.parentWindow
 global.navigator = {userAgent: "webkit"}
