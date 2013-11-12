@@ -1,3 +1,8 @@
+/*
+    Slices provides sourceCanvas to tiles dimensioned tileWidth x tileHeight
+    Emits Tile event with tile number (web mercator - zoomlevel/x/y) and Canvas
+    containing the tile imagery
+*/
 require! {
     Canvas:canvas
     events.EventEmitter
