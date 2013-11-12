@@ -33,12 +33,24 @@ Then, the UTFGrid needs to be generated. The biggest issue here is area detectio
 
 Note that due to rendering antialiasing, there is a *colorInterval* property in [TileJsonGenerator](ls/TileJsonGenerator.ls) that dictates the minimum step between two shades. By default it is set to 5, meaning you can use 256^3 / 5 = **3.3M different export values**. Also note that same export values share the same shade, as seen in the [image above](example/big_dataContoured.png) with the westernmost area (*Karlovarsky region*) and the very center area (*Prague region*). That image also has the colorInterval bumped to 18 for increased clarity and human readability.
 
+## Multithreaded use
+When generating maps from multiple sources and on multiple zoomlevels, you might want to run several threads in parallel. There is a mapLoop.ls utility just for that. It reads all SVG files in /data folder and converts them one-by-one into tiles in a set range of zoomlevels. It takes following parameters:
+
+* c - number of cores to run on. Should be equivalent to the number of cores your PC has (including HyperThreaded logicals)
+* f - From zoomlevel - lowest zoomlevel to generate
+* t - To zoomlevel - highest zoomlevel to generate
+
+Example use
+
+    lsc mapLoop.ls -c 8 -f 6 -t 10
+
 ## Common errors
 * Unexpected token when running map.ls - this hapens when the data-export is not valid JSON string. Make sure to use JSON.stringify on any data-export values.
 
-## TODO
+## Known limitations / TODO
 
-- Documentation
+* Poor performance on high zoom levels/big images
+* No CSS style support
 
 ## Licence (MIT)
 Copyright (c) 2013 Economia, a.s.
