@@ -1,0 +1,95 @@
+<html>
+    <head>
+        <title>D3/GeoJSON generation example</title>
+        <link rel="stylesheet" type="text/css" href="http://service.ihned.cz/js/tooltip/v1.1.2.css" />
+        <script src="http://service.ihned.cz/js/d3/v3.3.2.min.js"></script>
+        <script src="http://service.ihned.cz/js/tooltip/v1.1.2.d3.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+        // set some data that will be embedded into the SVG and eventually displayed in Leaflet
+        var exportData = {
+            10: "Nice county",
+            31: "Even nicer county",
+            64: "Not so nice a county",
+            41: "Nice county", // note - same as #10
+            63: "foo",
+            52: "bar",
+            51: "baz",
+            80: "Dignissimos id deserunt necessitatibus ipsa numquam possimus provident quis nam alias veritatis.",
+            71: "Totam, illo, consequuntur magni ipsum quaerat culpa labore esse sunt soluta nihil?",
+            53: "Iusto, corrupti amet illum dolore numquam cupiditate commodi voluptates porro ex autem.",
+            32: "Ducimus, neque dignissimos commodi repellat ipsa accusamus odit aspernatur incidunt iusto dolorem?",
+            20: "Maiores, dolore voluptates necessitatibus quod deleniti ratione earum sunt iste accusantium unde.",
+            42: "Maiores, quos ipsum optio commodi mollitia dolore quisquam non nulla soluta nobis?",
+            72: "Repellat, optio distinctio animi pariatur molestiae reiciendis earum veritatis perspiciatis fugiat nemo?"
+        };
+        // set the initial width of the SVG, in pixels. The height will be scaled automatically
+        var targetWidth = 600;
+
+        // load the geoJSON
+        d3.json("./kraje.geojson", function(err, data) {
+            var features = data.features;
+            // compute the containing bounds of all features
+            var north = -Infinity,
+                west  = +Infinity,
+                south = +Infinity,
+                east  = -Infinity,
+                i, len, feature, bounds;
+            for(i = 0, len=features.length; i < len; ++i) {
+                feature = features[i];
+                bounds = d3.geo.bounds(feature);
+                if(bounds[0][0] < west) {
+                    west = bounds[0][0];
+                }
+                if(bounds[0][1] < south) {
+                    south = bounds[0][1];
+                }
+                if(bounds[1][0] > east) {
+                    east = bounds[1][0];
+                }
+                if(bounds[1][1] > north) {
+                    north = bounds[1][1];
+                }
+            }
+            // setup the projection
+            var displayedPercent = (Math.abs(west - east)) / 360,
+                projection       = d3.geo.mercator()
+                    .scale(targetWidth / (Math.PI * 2 * displayedPercent))
+                    .center([west, north]) // center of d3.geo is actually top left corner, when no translation is applied
+                    .translate([0, 0])
+            // compute the actual (projected) SVG dimensions
+            var leftTop         = projection([west, north]),
+                rightBottom     = projection([east, south]),
+                projectedWidth  = rightBottom[0] - leftTop[0],
+                projectedHeight = rightBottom[1] - leftTop[1];
+            // now define a path generator that will use our projection
+            var path = d3.geo.path()
+                .projection(projection);
+            // construct the SVG itself
+            var svg = d3.select("body").append("svg")
+                .attr("width", projectedWidth)
+                .attr("height", projectedHeight)
+                // this is important - set the data-bounds attribute
+                .attr("data-bounds", [north, west, south, east].join(','));
+            // and draw the features!
+            // setup some colors to fill the paths
+            var colors = ["#174F82", "#85BEE6", "#E2007A", "#D73E3A", "#A1826C", "#C283B5", "#A077CE", "#B51339", "#A4C400"];
+            svg.selectAll("path")
+                .data(features)
+                .enter()
+                    .append("path")
+                    .attr("d", path)
+                    .attr("stroke", "black") // remember - no CSS support!
+                    .attr("stroke-width", "1")
+                    .attr("fill", function(d, index) { return colors[index % colors.length] })
+                    // the most important line - set the data-export attribute to stringified JSON of our data
+                    .attr("data-export", function(d) {return JSON.stringify(exportData[d.id])})
+                    // this line is just for easier debugging - using the Tooltip plugin, display the export data in a little bubble helpbox
+                    .attr("data-tooltip", function(d) {return exportData[d.id]})
+        });
+        // bonus - setup the Tooltip module so we can see the data on hover
+        new Tooltip().watchElements();
+        </script>
+    </body>
+</html>
