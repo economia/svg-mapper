@@ -1,4 +1,6 @@
-/node_modules
-/test.png
-/data
-/*.sublime-workspace
+node_modules
+data/*
+!data/done/
+data/done/*
+!data/done/.placeholder
+*.sublime-workspace
