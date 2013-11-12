@@ -13,7 +13,7 @@ Please note it is quite resource intensive (easily takes a gigabyte of RAM per t
 
 ## Step by step usage
 
-Firsty, you need the annoted SVG. For an example how to generate one from geoJSON and some predefined data, see (example/generator.html)[./example/generator.html]. You can get the SVG itself from that page using [SVG Crowbar](http://nytimes.github.io/svg-crowbar/) or download it [directly from the examples folder](./example/example.svg).
+Firsty, you need the annoted SVG. For an example how to generate one from geoJSON and some predefined data, see [example/generator.html](example/generator.html). You can get the SVG itself from that page using [SVG Crowbar](http://nytimes.github.io/svg-crowbar/) or download it [directly from the examples folder](./example/example.svg).
 
 Now you need to run the command line map.ls
 
@@ -24,10 +24,10 @@ lsc is a command to launch Node with automatic LiveScript compiler. You can also
 * f - path to file
 * z - zoomlevel to generate (same numbering as OpenStreetMap or Google Maps)
 
-Now your tiles should be generated into a directory with the same name as the original SVG, sans the ".svg" suffix - see[example/output](example/output) directory. It is ready to be plugged into Leaflet as any other layer. See the (output example)[example/leaflet.html] for details on how to do this.
+Now your tiles should be generated into a directory with the same name as the original SVG, sans the ".svg" suffix - see [example/output](example/output) directory. It is ready to be plugged into Leaflet as any other layer. See the [output example](example/leaflet.html) for details on how to do this.
 
 ## Modus operandi
-First of all, map.ls renders your image to a canvas with correct scale for a given zoom level and with appropriate offset from top and left sides to correctly align with Web Mercator tiles. See [this image](example/big.png) for an example of Czech Republic at zoomlevel 6.
+First of all, map.ls renders your image to a canvas with correct scale for a given zoom level and with appropriate offset from top and left sides to correctly align with Web Mercator tiles. See [this image](example/big.png) for an example of Czech Republic at zoomlevel 6. This image is then sliced into tiles 256x256px (like [this one](example/output/6/34/21.png) and one [below it](example/output/6/34/22.png)).
 
 Then, the UTFGrid needs to be generated. The biggest issue here is area detection - with possible overlaying paths, it can get quite complex. This is why SVGMapper uses color based detection on a rendered SVG rather than computational point-in-polygon detection. First, it selects all paths with data-export attribute and changes their fill color to a unique shade. This shade is later detected on a per-pixel basis and appropriate UTFGrid JSON is generated. For an example of how this works, see [this image](example/big_dataContoured.png).
 
