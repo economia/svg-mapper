@@ -1,6 +1,8 @@
 # SVG mapper
 
-Utilizing [node-canvas](https://github.com/learnboost/node-canvas) and [CanVG](http://code.google.com/p/canvg/) slices provided SVG into tiles for use e.g. in [Leaflet](http://leafletjs.com/). Supports [UTFGrid](https://www.mapbox.com/developers/utfgrid/). Written in [LiveScript](http://livescript.net/), compiles to JavaScript.
+Ever had a complex GeoJSON with thousands of features and some dataset that integrates perfectly with [D3](http://d3js.org/), just to discover that rendering it takes ages and requires megabytes of data (like this [electoral map](http://datasklad.ihned.cz/volebni-mapa/www/) of Czech republic)? That's why we developed SVG Mapper. Utilizing [node-canvas](https://github.com/learnboost/node-canvas) and [CanVG](http://code.google.com/p/canvg/), it slices provided SVG into bitmap tiles for use e.g. in [Leaflet](http://leafletjs.com/), with interactivity provided by [UTFGrid](https://www.mapbox.com/developers/utfgrid/). The result is a zoomable, interactive [map](http://ihned-politickemapy.s3.amazonaws.com/index.html) compatible with Google and OpenStreetMap tiles.
+
+Written in [LiveScript](http://livescript.net/), compiles to JavaScript.
 
 Please note it is quite resource intensive (easily takes a gigabyte of RAM per thread) and **does not support CSS** styled content, all elements must have all their properties set by inline attributes.
 
