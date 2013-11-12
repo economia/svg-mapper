@@ -11,6 +11,8 @@ Please note it is quite resource intensive (easily takes a gigabyte of RAM per t
 * Run the command-line utility to generate tiles - both imagery and UTFGrid JSONs
 * Integrate the new layer into your existing Leaflet deployment. You might want [Leaflet.utfgrid](https://github.com/danzel/Leaflet.utfgrid) if you don't use it already.
 
+See [this page](http://datasklad.ihned.cz/svgmapper-example/leaflet.html) for an example of it all running together.
+
 ## Step by step usage
 
 Firsty, you need the annoted SVG. For an example how to generate one from geoJSON and some predefined data, see [example/generator.html](example/generator.html). You can get the SVG itself from that page using [SVG Crowbar](http://nytimes.github.io/svg-crowbar/) or download it [directly from the examples folder](./example/example.svg).
