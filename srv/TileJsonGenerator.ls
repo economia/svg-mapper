@@ -9,8 +9,7 @@ module.exports = class TileJsonGenerator
     exportables: null
     colorInterval: 5 # this is used to better differentiate between areas
     jsonGranularity: 4 # side length of one cell in UTFGrid
-    ->
-        @exportables = [ null ]
+    (@exportables = [null] ) ->
 
     generateJson: (canvas) ->
         ctx = canvas.getContext \2d
