@@ -26,8 +26,8 @@ filename   = argv.f
 zoomLevel  = argv.z
 mode       = argv.m
 dirname    = argv.d
-currentSub = argv.s
-subSize    = argv.ss || 19
+currentSub = argv.c
+subSize    = argv.s || 19
 svgSource  = switch mode
     | "image" => "#dirname/original.svg"
     | "json"  => "#dirname/exports.svg"
@@ -101,5 +101,4 @@ tileMaker = new TileMaker canvas, [256, 256], zoomLevel
         if tilesDone == tileCount
             # canVG has some issues quitting correctly, hence process.exit
             setTimeout process.exit, 1000
-
-    tileCount = tileMaker.makeTiles!
+tileCount = tileMaker.makeTiles!

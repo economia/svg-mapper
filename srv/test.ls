@@ -32,8 +32,8 @@ cmds = []
         cb!
 
     for sub in [0 til xSteps * ySteps]
-        cmds.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -s #sub -m json -ss #subSize"
-        cmds.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -s #sub -m image -ss #subSize"
+        cmds.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
+        cmds.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
     cb!
 
 i = 0
