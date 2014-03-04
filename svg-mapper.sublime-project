@@ -13,7 +13,7 @@
             "name": "LiveScripts",
             // "cmd": ["slake.cmd", "-c", "$file", "build-script"],
             // "cmd": ["lsc.cmd", "$file"],
-            "cmd": ["lsc.cmd", "-o", "../js", "-c", "$file"],
+            "cmd": ["lsc.cmd", "-o", "../bin", "-c", "$file"],
             "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
             "selector": "source.livescript",
             "variants": [
