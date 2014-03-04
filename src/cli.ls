@@ -6,25 +6,28 @@ require! {
     optimist
 }
 optimist
-    .usage "Usage: $0 [svg file] -z [from-to] [-s [num]] [-c [num]]"
+    .usage "Usage: $0 [svg file] -z [num] -s [num] -c [num]"
     .demand 1
     .demand <[z]>
     .describe "z" "Zoomlevel boundaries (inclusive), eg. 5-8"
     .describe "c" "Number of CPU cores to use"
+    .default "c" 4
+    .describe "s" "Maximum size of image before slicing"
+    .default "s" 19
     .alias "z" "zoom"
     .alias "c" "cores"
 
 argv = optimist.argv
 
-subSize = argv.s || 19
+subSize = +argv.s || 19
 subMaxWidth  = subSize * 256
 subMaxHeight = subSize * 256
 
-cores = (parseInt argv.c, 10) || 4
-
+cores = +argv.c || 4
+unless argv.z?match /[0-9]-[0-9]+/
+    console.log "Invalid zoomlevel boundaries, use eg. -z 5-8"
+    return
 zoomLevelBoundaries = argv.z.split "-" .map -> parseInt it, 10
-unless zoomLevelBoundaries[0] and zoomLevelBoundaries[1]
-    throw new Error "Invalid zoomlevel boundaries, use eg. 5-8"
 
 absoluteOrRelative = optimist.argv._?0
 absoluteFileAddress =
