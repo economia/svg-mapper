@@ -11,9 +11,9 @@
     [
         {
             "name": "LiveScripts",
-            // "cmd": ["slake.cmd", "-c", "$file", "build-script"],
+            "cmd": ["slake.cmd", "build"],
             // "cmd": ["lsc.cmd", "$file"],
-            "cmd": ["lsc.cmd", "-o", "../bin", "-c", "$file"],
+            // "cmd": ["lsc.cmd", "-o", "../bin", "-c", "$file"],
             "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
             "selector": "source.livescript",
             "variants": [
@@ -41,6 +41,6 @@
     ],
     "settings":
     {
-        "build_on_save": 0
+        "build_on_save": 1
     }
 }
