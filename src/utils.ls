@@ -82,6 +82,8 @@ prepareSvgs = (svgAddress, cb) ->
 
 extractBounds = ($content) ->
     bounds                     = $content.find "svg" .attr \data-bounds
+    if not bounds
+        throw new Error 'data-bounds attribute of <svg> not found. Use eg. <svg data-bounds="51.05,12.09,48.55,18.85">'
     [north, west, south, east] = bounds.split /[, ;]/g .map parseFloat
     {north, west, south, east}
 
