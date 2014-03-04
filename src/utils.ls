@@ -31,8 +31,8 @@ module.exports.generateCommands = (dir, subSize, zoomLevels) ->
     commands = []
     for {zoomLevel, xSteps, ySteps} in zoomLevels
         for sub in [0 til xSteps * ySteps]
-            commands.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
-            commands.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
+            commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
+            commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
     commands
 
 getPixelDimensions = module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
