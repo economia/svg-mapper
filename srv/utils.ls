@@ -1,17 +1,41 @@
-module.exports.generate = (svgAddress, targetDir, cb) ->
+module.exports.generateMetadata = (svgAddress, targetDir, cb) ->
     require! <[ fs async ]>
     L = prepareLeaflet!
     (err, {originalImage, contouredExportsImage, exportables, bounds}) <~ prepareSvgs svgAddress
     data = JSON.stringify {exportables, bounds}
-    (err) <~ fs.mkdir targetDir
     <~ async.parallel do
         *   -> fs.writeFile "#targetDir/original.svg", originalImage, it
             -> fs.writeFile "#targetDir/exports.svg", contouredExportsImage, it
             -> fs.writeFile "#targetDir/data.json", data, it
     cb?!
 
+module.exports.getZoomlevelData = (bounds, subMaxWidth, subMaxHeight, zoomLevel) ->
+    {width, height, firstTileNumberX, lastTileNumberX} = getPixelDimensions do
+        bounds
+        zoomLevel
+    xSteps = Math.ceil width / subMaxWidth
+    ySteps = Math.ceil height / subMaxHeight
+    {zoomLevel, xSteps, ySteps, firstTileNumberX, lastTileNumberX}
 
-module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
+module.exports.createDirectories = (dir, zoomLevels, cb) ->
+    require! <[ fs async ]>
+    <~ async.each zoomLevels, ({zoomLevel, firstTileNumberX, lastTileNumberX}, cb) ->
+        <~ fs.mkdir "#dir/#zoomLevel"
+        <~ async.each [firstTileNumberX to lastTileNumberX], (x, cb) ->
+            <~ fs.mkdir "#dir/#zoomLevel/#x"
+            cb!
+        cb!
+    cb?!
+
+module.exports.generateCommands = (dir, subSize, zoomLevels) ->
+    commands = []
+    for {zoomLevel, xSteps, ySteps} in zoomLevels
+        for sub in [0 til xSteps * ySteps]
+            commands.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
+            commands.push "lsc #__dirname/map.ls -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
+    commands
+
+getPixelDimensions = module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
     L = prepareLeaflet!
     # find what the pixel coordinates would be on a full world map at the given zoomlevel
     {x:x0, y:y0} = L.CRS.EPSG3857.latLngToPoint do
@@ -35,7 +59,6 @@ module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
     lastTileNumberY = Math.floor y1 / 256
 
     {width, height, firstTileNumberX, firstTileNumberY, lastTileNumberX, lastTileNumberY, offsetX, offsetY}
-
 
 prepareLeaflet = ->
     # following globals are for Leaflet, which depends on them

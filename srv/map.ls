@@ -9,34 +9,34 @@ require! {
     $ : jquery
     './TileMaker'
     './TileJsonGenerator'
-    './MetadataGenerator'
+    './utils'
 }
 optimist
-    .usage "Usage: $0 -d [directory] -z [num]"
+    .usage "Usage: $0 -d [directory] -z [num] -m [image|json] "
     .demand ["d" "z" "m"]
     .describe "d" "Directory with prepared original.svg, exports.svg and data.json"
     .describe "z" "Zoom level to generate"
-    .describe "s" "Subimage index to generate"
     .describe "m" "Mode, 'image' or 'json'"
-    .describe "ss" "Subimage size in counts of tiles"
+    .describe "c" "Subimage index to generate, zero-based."
+    .describe "s" "Subimage size in counts of tiles (= maximum width or height of sliced image)"
 
 argv = optimist.argv
 
-filename   = argv.f
+dirname    = argv.d
 zoomLevel  = argv.z
 mode       = argv.m
-dirname    = argv.d
-currentSub = argv.c
+currentSub = argv.c || 0
 subSize    = argv.s || 19
 svgSource  = switch mode
     | "image" => "#dirname/original.svg"
     | "json"  => "#dirname/exports.svg"
+    | _       => throw new Error "Unknown mode: #mode. Allowed modes are 'image' and 'json'."
 svg = fs.readFileSync svgSource .toString!
 
 {exportables, bounds} = "#dirname/data.json" |> fs.readFileSync |> JSON.parse
 tileJsonGenerator = new TileJsonGenerator exportables
 
-{width, height, firstTileNumberX, firstTileNumberY, offsetX, offsetY} = MetadataGenerator.getPixelDimensions do
+{width, height, firstTileNumberX, firstTileNumberY, offsetX, offsetY} = utils.getPixelDimensions do
     bounds
     zoomLevel
 
