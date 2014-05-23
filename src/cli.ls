@@ -6,7 +6,7 @@ require! {
     optimist
 }
 optimist
-    .usage "Usage: $0 [svg file] -z [num] -s [num] -c [num]"
+    .usage "Usage: $0 [svg file] -z [num] -s [num] -c [num] [--only-jsons | --only-tiles]"
     .demand 1
     .demand <[z]>
     .describe "z" "Zoomlevel boundaries (inclusive), eg. 5-8"
@@ -20,8 +20,12 @@ optimist
 argv = optimist.argv
 
 subSize = +argv.s || 19
+
 subMaxWidth  = subSize * 256
 subMaxHeight = subSize * 256
+skipTiles = skipJsons = false
+if argv["only-jsons"] then skipTiles = true
+if argv["only-tiles"] then skipJsons = true
 
 cores = +argv.c || 4
 unless argv.z?match /[0-9]-[0-9]+/
@@ -47,8 +51,7 @@ zoomLevelDataCurry = (zoomLevel) -> utils.getZoomlevelData bounds, subMaxWidth, 
 zoomLevels = [zoomLevelBoundaries.0 to zoomLevelBoundaries.1].map zoomLevelDataCurry
 console.log "Creating directories"
 <~ utils.createDirectories dir, zoomLevels
-commands = utils.generateCommands dir, subSize, zoomLevels
-
+commands = utils.generateCommands dir, subSize, zoomLevels, {skipTiles, skipJsons}
 i = 0
 len = commands.length
 processing = {}

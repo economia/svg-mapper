@@ -27,12 +27,14 @@ module.exports.createDirectories = (dir, zoomLevels, cb) ->
         cb!
     cb?!
 
-module.exports.generateCommands = (dir, subSize, zoomLevels) ->
+module.exports.generateCommands = (dir, subSize, zoomLevels, {skipJsons=false, skipTiles=false}:options) ->
     commands = []
     for {zoomLevel, xSteps, ySteps} in zoomLevels
         for sub in [0 til xSteps * ySteps]
-            commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
-            commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
+            if not skipJsons
+                commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m json -s #subSize"
+            if not skipTiles
+                commands.push "node #__dirname/map.js -d #dir -z #zoomLevel -c #sub -m image -s #subSize"
     commands
 
 getPixelDimensions = module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
