@@ -34,25 +34,40 @@ unless argv.z?match /[0-9]-[0-9]+/
 zoomLevelBoundaries = argv.z.split "-" .map -> parseInt it, 10
 
 absoluteOrRelative = optimist.argv._?0
-absoluteFileAddress =
+absoluteAddress =
     | fs.existsSync absoluteOrRelative => absoluteOrRelative
     | fs.existsSync "#{process.cwd!}/#{absoluteOrRelative}" => "#{process.cwd!}/#{absoluteOrRelative}"
     | otherwise => throw new Error "File not found: #absoluteOrRelative"
 
-file = absoluteFileAddress
-dir = absoluteFileAddress.split '/' .pop!.replace /\.svg$/ ''
-dir += "/"
-(err) <~ fs.mkdir dir
-throw err if err
-console.log "Generating metadata for #absoluteOrRelative"
-<~ utils.generateMetadata file, dir
-{bounds} = "#dir/data.json" |> fs.readFileSync |> JSON.parse
-zoomLevelDataCurry = (zoomLevel) -> utils.getZoomlevelData bounds, subMaxWidth, subMaxHeight, zoomLevel
-zoomLevels = [zoomLevelBoundaries.0 to zoomLevelBoundaries.1].map zoomLevelDataCurry
-console.log "Creating directories"
-<~ utils.createDirectories dir, zoomLevels
-commands = utils.generateCommands dir, subSize, zoomLevels, {skipTiles, skipJsons}
+stat = fs.statSync absoluteAddress
+svgSuffixRegex = /\.svg$/
+files = if stat.isDirectory!
+    fs.readdirSync absoluteAddress
+        .filter -> svgSuffixRegex.test it
+        .map -> absoluteAddress + "/" + it
+else
+    [absoluteAddress]
+
+commands = []
+<~ async.eachSeries files, (file, cb) ->
+    dir = file.replace svgSuffixRegex, ''
+    dir += "/"
+    (err) <~ fs.mkdir dir
+    if err
+        console.log "Directory already exists or is not creatable, skipping: #dir"
+        cb!
+        return
+    console.log "Generating metadata for #file"
+    <~ utils.generateMetadata file, dir
+    {bounds} = "#dir/data.json" |> fs.readFileSync |> JSON.parse
+    zoomLevelDataCurry = (zoomLevel) -> utils.getZoomlevelData bounds, subMaxWidth, subMaxHeight, zoomLevel
+    zoomLevels = [zoomLevelBoundaries.0 to zoomLevelBoundaries.1].map zoomLevelDataCurry
+    console.log "Creating directories"
+    <~ utils.createDirectories dir, zoomLevels
+    commands ++= utils.generateCommands dir, subSize, zoomLevels, {skipTiles, skipJsons}
+    cb!
 i = 0
+
 len = commands.length
 processing = {}
 console.log "Starting tile generation. Using #cores cores to do #len jobs."
@@ -71,4 +86,4 @@ console.log "Starting tile generation. Using #cores cores to do #len jobs."
     process.stdout.write "\n"
     console.log that if stderr
     cb!
-console.log "All done, tiles are now in #{dir}"
+console.log "All done, tiles are now in same directory as #absoluteAddress"
