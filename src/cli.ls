@@ -49,7 +49,7 @@ else
     [absoluteAddress]
 
 commands = []
-<~ async.eachSeries files, (file, cb) ->
+<~ async.eachLimit files, cores, (file, cb) ->
     dir = file.replace svgSuffixRegex, ''
     dir += "/"
     (err) <~ fs.mkdir dir
@@ -58,7 +58,9 @@ commands = []
         cb!
         return
     console.log "Generating metadata for #file"
-    <~ utils.generateMetadata file, dir
+    console.log file, dir
+    cmd = "node #__dirname/metadata.js -f #file -d #dir"
+    (err, stdout, stderr) <~ exec cmd
     {bounds} = "#dir/data.json" |> fs.readFileSync |> JSON.parse
     zoomLevelDataCurry = (zoomLevel) -> utils.getZoomlevelData bounds, subMaxWidth, subMaxHeight, zoomLevel
     zoomLevels = [zoomLevelBoundaries.0 to zoomLevelBoundaries.1].map zoomLevelDataCurry
