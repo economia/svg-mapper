@@ -28,6 +28,7 @@ module.exports = class TileMaker extends EventEmitter
                         offY
                         @tileWidth
                         @tileHeight
+                    tileCtx.clearRect 0, 0, @tileWidth, @tileHeight
                     tileCtx.putImageData imageData, 0, 0
                     @emit \tile z, x, y, tile
 
