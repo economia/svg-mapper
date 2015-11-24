@@ -58,7 +58,6 @@ commands = []
         cb!
         return
     console.log "Generating metadata for #file"
-    console.log file, dir
     cmd = "node #__dirname/metadata.js -f #file -d #dir"
     (err, stdout, stderr) <~ exec cmd
     {bounds} = "#dir/data.json" |> fs.readFileSync |> JSON.parse
