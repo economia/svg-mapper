@@ -1,6 +1,6 @@
 {
   "name": "svg-mapper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Tool to slice big, annotated SVG into WebMercator tiles",
   "main": "./bin/cli.js",
   "engines": {
