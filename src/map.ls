@@ -4,9 +4,7 @@ require! {
     canvg
     Canvas:canvas
     fs
-    jsdom.jsdom
     optimist
-    $ : jquery
     './TileMaker'
     './TileJsonGenerator'
     './utils'
