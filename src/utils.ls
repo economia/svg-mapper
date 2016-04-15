@@ -1,6 +1,6 @@
+L = null
 module.exports.generateMetadata = (svgAddress, targetDir, cb) ->
     require! <[ fs async ]>
-    L = prepareLeaflet!
     (err, {originalImage, contouredExportsImage, exportables, bounds}) <~ prepareSvgs svgAddress
     data = JSON.stringify {exportables, bounds}
     <~ async.parallel do
@@ -38,8 +38,9 @@ module.exports.generateCommands = (dir, subSize, zoomLevels, {skipJsons=false, s
     commands
 
 getPixelDimensions = module.exports.getPixelDimensions = ({north, west, east, south}, zoomLevel) ->
-    L = prepareLeaflet!
     # find what the pixel coordinates would be on a full world map at the given zoomlevel
+    if not L
+        throw new error "Leaflet is not prepared - call utils.prepareLeaflet and wait for it to finish before calling getPixelDimensions"
     {x:x0, y:y0} = L.CRS.EPSG3857.latLngToPoint do
         new L.LatLng north, west
         zoomLevel
@@ -62,22 +63,26 @@ getPixelDimensions = module.exports.getPixelDimensions = ({north, west, east, so
 
     {width, height, firstTileNumberX, firstTileNumberY, lastTileNumberX, lastTileNumberY, offsetX, offsetY}
 
-prepareLeaflet = ->
+prepareLeaflet = module.exports.prepareLeaflet = (cb) ->
     # following globals are for Leaflet, which depends on them
-    require! jsdom.jsdom
-    global.document  = jsdom "<html><head></head><body></body></html>"
-    global.window    = global.document.parentWindow
+    require! {
+        jsdom.env
+    }
+    (err, window) <~ env "<div></div>"
+    global.document  = window.document
+    global.window    = window
     global.navigator = {userAgent: "webkit"}
-    require! L: leaflet
-    L
+    require! leaflet
+    L := leaflet
+    cb!
 
 prepareSvgs = (svgAddress, cb) ->
     require! './TileJsonGenerator'
-    (err, $content) <~ getPrepared$Svg svgAddress
+    (err, $content, $) <~ getPrepared$Svg svgAddress
     bounds                = extractBounds $content
     originalImage         = fixCdata $content.html!
     tileJsonGenerator     = new TileJsonGenerator
-    computeToContouredExports $content, tileJsonGenerator
+    computeToContouredExports $, $content, tileJsonGenerator
     contouredExportsImage = fixCdata $content.html!
     {exportables} = tileJsonGenerator
     cb null {originalImage, contouredExportsImage, exportables, bounds}
@@ -91,18 +96,20 @@ extractBounds = ($content) ->
 
 getPrepared$Svg = (svgAddress, cb) ->
     require! {
+        jsdom.env
         fs
-        $ : jquery
+        jquery
     }
+    (err, window) <~ env "<div></div>"
+    $ = jquery window
     (err, content) <~ fs.readFile svgAddress
     content .= toString!
     $content = $ "<div></div>"
     $content.html content
     $content.find "style" .remove! # CSS styles are unsupported - they would interfere with color-based area detection
-    cb null $content
+    cb null $content, $
 
-computeToContouredExports = ($content, tileJsonGenerator) ->
-    require! $ : jquery
+computeToContouredExports = ($, $content, tileJsonGenerator) ->
     $exportables = $content.find "[data-export]"
     $exportables.each ->
         # assign each exportable area a unique color, which will then be used to match the area with the data

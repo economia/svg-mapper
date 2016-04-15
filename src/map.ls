@@ -33,7 +33,7 @@ svg = fs.readFileSync svgSource .toString!
 
 {exportables, bounds} = "#dirname/data.json" |> fs.readFileSync |> JSON.parse
 tileJsonGenerator = new TileJsonGenerator exportables
-
+<~ utils.prepareLeaflet
 {width, height, firstTileNumberX, firstTileNumberY, offsetX, offsetY} = utils.getPixelDimensions do
     bounds
     zoomLevel

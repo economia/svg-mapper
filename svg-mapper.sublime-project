@@ -1,46 +1,89 @@
 {
-    "folders":
-    [
-        {
-            "path": "./",
-            "file_exclude_patterns": ["*.sublime-workspace",".placeholder", "screen.css", "external.css", "script.js", "external.js", "*.html.gz", "*.css.gz", "*.js.gz"],
-            "folder_exclude_patterns": ["node_modules", "www/js"]
-        }
-    ],
-    "build_systems":
-    [
-        {
-            "name": "LiveScripts",
-            "cmd": ["slake.cmd", "build"],
-            // "cmd": ["lsc.cmd", "$file"],
-            // "cmd": ["lsc.cmd", "-o", "../bin", "-c", "$file"],
-            "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
-            "selector": "source.livescript",
-            "variants": [
-                {
-                    "name": "Print",
-                    "cmd": ["lsc.cmd", "-cp" ,"$file"]
-                }, {
-                    "name": "Deploy",
-                    "cmd": ["slake.cmd", "-c", "$file", "deploy"]
-                }
-            ]
-        }, {
-            "name": "Stylus",
-            "cmd": ["slake.cmd", "-c", "$file", "build-styles"],
-            // "cmd": ["stylus.cmd", "-o", "../css/", "./screen.styl"],
-            "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
-            "selector": "source.stylus",
-            "variants": [
-                {
-                    "name": "Deploy",
-                    "cmd": ["slake.cmd", "-c", "$file", "deploy"]
-                }
-            ]
-        }
-    ],
-    "settings":
-    {
-        "build_on_save": 1
-    }
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"*.sublime-workspace",
+				".placeholder",
+				"screen.css",
+				"external.css",
+				"script.js",
+				"external.js",
+				"*.html.gz",
+				"*.css.gz",
+				"*.js.gz"
+			],
+			"folder_exclude_patterns":
+			[
+				"node_modules",
+				"www/js"
+			],
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"slake.cmd",
+				"build"
+			],
+			"file_regex": "^(...*?):([0-9]*):?([0-9]*)",
+			"name": "LiveScripts",
+			"selector": "source.livescript",
+			"variants":
+			[
+				{
+					"cmd":
+					[
+						"lsc.cmd",
+						"-cp",
+						"$file"
+					],
+					"name": "Print"
+				},
+				{
+					"cmd":
+					[
+						"slake.cmd",
+						"-c",
+						"$file",
+						"deploy"
+					],
+					"name": "Deploy"
+				}
+			]
+		},
+		{
+			"cmd":
+			[
+				"slake.cmd",
+				"-c",
+				"$file",
+				"build-styles"
+			],
+			"file_regex": "^(...*?):([0-9]*):?([0-9]*)",
+			"name": "Stylus",
+			"selector": "source.stylus",
+			"variants":
+			[
+				{
+					"cmd":
+					[
+						"slake.cmd",
+						"-c",
+						"$file",
+						"deploy"
+					],
+					"name": "Deploy"
+				}
+			]
+		}
+	],
+	"settings":
+	{
+		"build_on_save": 1
+	}
 }

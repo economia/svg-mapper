@@ -60,7 +60,9 @@ commands = []
     console.log "Generating metadata for #file"
     cmd = "node #__dirname/metadata.js -f #file -d #dir"
     (err, stdout, stderr) <~ exec cmd
+    [err, stderr].filter(-> it).forEach -> throw new Error it
     {bounds} = "#dir/data.json" |> fs.readFileSync |> JSON.parse
+    <~ utils.prepareLeaflet!
     zoomLevelDataCurry = (zoomLevel) -> utils.getZoomlevelData bounds, subMaxWidth, subMaxHeight, zoomLevel
     zoomLevels = [zoomLevelBoundaries.0 to zoomLevelBoundaries.1].map zoomLevelDataCurry
     console.log "Creating directories"
